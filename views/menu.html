@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ALKAN CNC | Ürünler</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --steel: #1a1a1a;
+      --iron: #2c2c2c;
+      --spark: #f5a623;
+      --metal: #888;
+      --light: #f2f2f0;
+      --white: #ffffff;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Barlow', sans-serif;
+      background: var(--steel);
+      color: var(--light);
+    }
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 18px 60px;
+      background: rgba(26,26,26,0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #333;
+    }
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px; letter-spacing: 4px; color: var(--spark);
+      text-decoration: none;
+    }
+    .logo span { color: var(--white); }
+    nav ul { list-style: none; display: flex; gap: 36px; }
+    nav ul li a {
+      text-decoration: none; color: var(--metal);
+      font-size: 13px; letter-spacing: 2px;
+      text-transform: uppercase; font-weight: 600;
+      transition: color .2s;
+    }
+    nav ul li a:hover { color: var(--spark); }
+    .page-content { padding: 120px 60px 60px; }
+    .section-tag {
+      font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
+      color: var(--spark); font-weight: 600; margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 58px; color: var(--white);
+      line-height: 1; margin-bottom: 50px;
+    }
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .product-card {
+      background: var(--iron); padding: 32px;
+      border-bottom: 3px solid transparent;
+      transition: border-color .3s;
+    }
+    .product-card:hover { border-color: var(--spark); }
+    .product-category {
+      font-size: 11px; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--spark); margin-bottom: 12px;
+    }
+    .product-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 24px; color: var(--white);
+      letter-spacing: 2px; margin-bottom: 12px;
+    }
+    .product-desc {
+      font-size: 13px; color: var(--metal);
+      line-height: 1.7; margin-bottom: 20px;
+    }
+    .product-footer {
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .product-price {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px; color: var(--spark);
+    }
+    .product-stock { font-size: 12px; color: var(--metal); }
+    .btn-add {
+      width: 100%; margin-top: 16px; padding: 12px;
+      background: var(--spark); color: #111;
+      font-family: 'Barlow', sans-serif;
+      font-weight: 700; font-size: 12px;
+      letter-spacing: 2px; text-transform: uppercase;
+      border: none; cursor: pointer; transition: opacity .2s;
+    }
+    .btn-add:hover { opacity: .85; }
+    .loading {
+      text-align: center; padding: 60px;
+      color: var(--metal); font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">ALKAN <span>CNC</span></a>
+  <ul>
+    <li><a href="/">Ana Sayfa</a></li>
+    <li><a href="/menu">Ürünler</a></li>
+    <li><a href="/contact">İletişim</a></li>
+    <li id="authLink"><a href="/login">Giriş Yap</a></li>
+    <li id="registerLink"><a href="/register">Kayıt Ol</a></li>
+    <li id="userMenu" style="display:none; position:relative;">
+      <a href="#" onclick="toggleMenu(event)" id="userName"></a>
+      <div id="dropdownMenu" style="
+        display:none; position:absolute; right:0; top:100%;
+        background:#2c2c2c; border:1px solid #444;
+        min-width:160px; z-index:999;">
+        <a href="#" onclick="cikisYap()" style="
+          display:block; padding:12px 16px; color:#f2f2f0;
+          text-decoration:none; font-size:13px;
+          letter-spacing:2px; text-transform:uppercase;">Çıkış Yap</a>
+      </div>
+    </li>
+  </ul>
+</nav>
+
+<div class="page-content">
+  <p class="section-tag">Katalog</p>
+  <h1 class="section-title">ÜRÜNLERİMİZ</h1>
+  <div class="product-grid" id="productGrid">
+    <div class="loading">Ürünler yükleniyor...</div>
+  </div>
+</div>
+
+<!-- Sepet Butonu -->
+<div onclick="toggleSepet()" style="
+  position:fixed; bottom:30px; right:30px;
+  background:var(--spark); color:#111;
+  padding:14px 20px; cursor:pointer;
+  font-family:'Barlow',sans-serif;
+  font-weight:700; font-size:13px;
+  letter-spacing:2px; z-index:999;
+">
+  🛒 SEPET (<span id="sepetCount">0</span>)
+</div>
+
+<!-- Sepet Paneli -->
+<div id="sepetPanel" style="
+  display:none;
+  position:fixed; bottom:90px; right:30px;
+  background:#2c2c2c; border:1px solid #444;
+  width:320px; padding:24px;
+  z-index:999; max-height:500px; overflow-y:auto;
+">
+  <h3 style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--white);margin-bottom:16px;">SEPETİM</h3>
+  <div id="sepetListe"></div>
+  <div style="margin-top:16px;padding-top:16px;border-top:1px solid #444;display:flex;justify-content:space-between;align-items:center;">
+    <span style="color:var(--metal);font-size:13px;">Toplam:</span>
+    <span id="sepetTotal" style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--spark);">0 ₺</span>
+  </div>
+  <button onclick="siparisVer()" style="
+    width:100%;margin-top:16px;padding:14px;
+    background:var(--spark);color:#111;
+    font-family:'Barlow',sans-serif;font-weight:700;
+    font-size:13px;letter-spacing:2px;text-transform:uppercase;
+    border:none;cursor:pointer;
+  ">Sipariş Ver →</button>
+</div>
+
+<script>
+  // Navbar
+  const name = localStorage.getItem('name');
+  if (name) {
+    document.getElementById('authLink').style.display = 'none';
+    document.getElementById('registerLink').style.display = 'none';
+    document.getElementById('userMenu').style.display = 'block';
+    document.getElementById('userName').textContent = name;
+  }
+  function toggleMenu(e) {
+    e.preventDefault();
+    const menu = document.getElementById('dropdownMenu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  }
+  document.addEventListener('click', function(e) {
+    if (!document.getElementById('userMenu').contains(e.target)) {
+      document.getElementById('dropdownMenu').style.display = 'none';
+    }
+  });
+  function cikisYap() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('name');
+    window.location.href = '/';
+  }
+
+  // Sepet
+  let sepet = JSON.parse(localStorage.getItem('sepet') || '[]');
+
+  function sepetGuncelle() {
+    const count = sepet.reduce((acc, item) => acc + item.quantity, 0);
+    document.getElementById('sepetCount').textContent = count;
+    const total = sepet.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    document.getElementById('sepetTotal').textContent = total + ' ₺';
+    const liste = document.getElementById('sepetListe');
+    if (sepet.length === 0) {
+      liste.innerHTML = '<p style="color:var(--metal);font-size:13px;">Sepet boş</p>';
+    } else {
+      liste.innerHTML = sepet.map((item, i) => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #444;">
+          <div>
+            <div style="font-size:13px;color:var(--light);">${item.name}</div>
+            <div style="font-size:12px;color:var(--metal);">${item.price} ₺ x ${item.quantity}</div>
+          </div>
+          <button onclick="sepettenCikar(${i})" style="background:none;border:none;color:var(--spark);cursor:pointer;font-size:16px;">✕</button>
+        </div>
+      `).join('');
+    }
+    localStorage.setItem('sepet', JSON.stringify(sepet));
+  }
+
+  function sepeteEkle(id, name, price) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Sepete eklemek için giriş yapmalısınız!');
+      window.location.href = '/login';
+      return;
+    }
+    const existing = sepet.find(item => item.productId === id);
+    if (existing) {
+      existing.quantity++;
+    } else {
+      sepet.push({ productId: id, name, price, quantity: 1 });
+    }
+    sepetGuncelle();
+  }
+
+  function sepettenCikar(index) {
+    sepet.splice(index, 1);
+    sepetGuncelle();
+  }
+
+  function toggleSepet() {
+    const panel = document.getElementById('sepetPanel');
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  }
+
+  async function siparisVer() {
+    if (sepet.length === 0) {
+      alert('Sepet boş!');
+      return;
+    }
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ items: sepet.map(i => ({ productId: i.productId, quantity: i.quantity })) })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        alert('Siparişiniz alındı!');
+        sepet = [];
+        sepetGuncelle();
+      } else {
+        alert(data.message);
+      }
+    } catch (err) {
+      alert('Bir hata oluştu!');
+    }
+  }
+
+  async function urunleriYukle() {
+    try {
+      const response = await fetch('/api/products');
+      const products = await response.json();
+      const grid = document.getElementById('productGrid');
+      if (products.length === 0) {
+        grid.innerHTML = '<div class="loading">Henüz ürün bulunmuyor.</div>';
+        return;
+      }
+      grid.innerHTML = products.map(p => `
+        <div class="product-card">
+          <div class="product-category">${p.category}</div>
+          <div class="product-name">${p.name}</div>
+          <p class="product-desc">${p.description || ''}</p>
+          <div class="product-footer">
+            <div class="product-price">${p.price} ₺</div>
+            <div class="product-stock">Stok: ${p.stock}</div>
+          </div>
+          <button class="btn-add" onclick="sepeteEkle('${p._id}', '${p.name}', ${p.price})">
+            Sepete Ekle
+          </button>
+        </div>
+      `).join('');
+    } catch (err) {
+      document.getElementById('productGrid').innerHTML = '<div class="loading">Ürünler yüklenemedi.</div>';
+    }
+  }
+
+  urunleriYukle();
+  sepetGuncelle();
+</script>
+</body>
+</html>
