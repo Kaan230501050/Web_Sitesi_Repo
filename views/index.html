@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ALKAN CNC | Freze & İşleme Hizmetleri</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --steel: #1a1a1a;
+      --iron: #2c2c2c;
+      --spark: #f5a623;
+      --metal: #888;
+      --light: #f2f2f0;
+      --white: #ffffff;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Barlow', sans-serif;
+      background: var(--steel);
+      color: var(--light);
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 18px 60px;
+      background: rgba(26,26,26,0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #333;
+    }
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      letter-spacing: 4px;
+      color: var(--spark);
+    }
+    .logo span { color: var(--white); }
+    nav ul { list-style: none; display: flex; gap: 36px; }
+    nav ul li a {
+      text-decoration: none;
+      color: var(--metal);
+      font-size: 13px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 600;
+      transition: color .2s;
+    }
+    nav ul li a:hover { color: var(--spark); }
+
+    /* ── HERO ── */
+    #hero {
+      height: 100vh;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: flex-start;
+      padding: 0 60px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(255,255,255,.02) 60px, rgba(255,255,255,.02) 61px),
+        repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(255,255,255,.02) 60px, rgba(255,255,255,.02) 61px),
+        linear-gradient(135deg, #111 0%, #1e1e1e 50%, #111 100%);
+      z-index: 0;
+    }
+    .hero-accent {
+      position: absolute; right: -80px; top: 50%;
+      transform: translateY(-50%);
+      width: 520px; height: 520px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(245,166,35,.12) 0%, transparent 70%);
+      z-index: 0;
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 700px; }
+    .hero-tag {
+      font-size: 12px; letter-spacing: 4px; text-transform: uppercase;
+      color: var(--spark); font-weight: 600; margin-bottom: 20px;
+      opacity: 0; animation: fadeUp .6s .2s forwards;
+    }
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(64px, 10vw, 110px);
+      line-height: .95;
+      color: var(--white);
+      opacity: 0; animation: fadeUp .6s .4s forwards;
+    }
+    .hero-title .highlight { color: var(--spark); }
+    .hero-sub {
+      margin-top: 24px;
+      font-size: 16px; line-height: 1.7;
+      color: var(--metal); max-width: 480px;
+      opacity: 0; animation: fadeUp .6s .6s forwards;
+    }
+    .hero-btns {
+      margin-top: 40px; display: flex; gap: 16px;
+      opacity: 0; animation: fadeUp .6s .8s forwards;
+    }
+    .btn-primary {
+      padding: 14px 36px;
+      background: var(--spark); color: #111;
+      font-family: 'Barlow', sans-serif;
+      font-weight: 700; font-size: 13px;
+      letter-spacing: 2px; text-transform: uppercase;
+      border: none; cursor: pointer;
+      text-decoration: none;
+      transition: opacity .2s;
+    }
+    .btn-primary:hover { opacity: .85; }
+    .btn-outline {
+      padding: 14px 36px;
+      background: transparent;
+      border: 1px solid #555;
+      color: var(--light);
+      font-family: 'Barlow', sans-serif;
+      font-weight: 600; font-size: 13px;
+      letter-spacing: 2px; text-transform: uppercase;
+      cursor: pointer; text-decoration: none;
+      transition: border-color .2s, color .2s;
+    }
+    .btn-outline:hover { border-color: var(--spark); color: var(--spark); }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      background: var(--iron);
+      border-top: 1px solid #333; border-bottom: 1px solid #333;
+      display: flex; justify-content: space-around;
+      padding: 36px 60px;
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 48px; color: var(--spark); line-height: 1;
+    }
+    .stat-label {
+      font-size: 11px; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--metal);
+      margin-top: 6px;
+    }
+
+    /* ── SECTIONS ── */
+    section { padding: 100px 60px; }
+    .section-tag {
+      font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
+      color: var(--spark); font-weight: 600; margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(36px, 5vw, 58px);
+      color: var(--white); line-height: 1;
+      margin-bottom: 50px;
+    }
+
+    /* ── HİZMETLER ── */
+    #hizmetler { background: var(--steel); }
+    .hizmet-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 2px;
+    }
+    .hizmet-card {
+      background: var(--iron);
+      padding: 40px 32px;
+      border-bottom: 3px solid transparent;
+      transition: border-color .3s, background .3s;
+      cursor: default;
+    }
+    .hizmet-card:hover {
+      border-color: var(--spark);
+      background: #333;
+    }
+    .hizmet-icon {
+      font-size: 36px; margin-bottom: 20px;
+    }
+    .hizmet-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px; letter-spacing: 2px;
+      color: var(--white); margin-bottom: 12px;
+    }
+    .hizmet-desc {
+      font-size: 14px; color: var(--metal); line-height: 1.7;
+    }
+
+    /* ── HAKKIMIZDA ── */
+    #hakkimizda {
+      background: var(--iron);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .about-text p {
+      font-size: 15px; line-height: 1.9;
+      color: var(--metal); margin-bottom: 20px;
+    }
+    .about-text p strong { color: var(--light); }
+    .machine-list { list-style: none; margin-top: 20px; }
+    .machine-list li {
+      padding: 12px 0;
+      border-bottom: 1px solid #3a3a3a;
+      font-size: 14px; color: var(--metal);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .machine-list li::before {
+      content: '▸'; color: var(--spark); font-size: 12px;
+    }
+    .about-visual {
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .spec-row {
+      background: var(--steel);
+      padding: 20px 24px;
+      border-left: 3px solid var(--spark);
+    }
+    .spec-label {
+      font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--metal); margin-bottom: 4px;
+    }
+    .spec-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 24px; color: var(--white); letter-spacing: 1px;
+    }
+
+    /* ── GALERİ ── */
+    #galeri { background: var(--steel); }
+    .galeri-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+    }
+    .galeri-item {
+      background: var(--iron);
+      aspect-ratio: 1;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 48px;
+      position: relative; overflow: hidden;
+      cursor: pointer;
+      transition: transform .3s;
+    }
+    .galeri-item:hover { transform: scale(1.03); z-index: 1; }
+    .galeri-item:hover .galeri-overlay { opacity: 1; }
+    .galeri-overlay {
+      position: absolute; inset: 0;
+      background: rgba(245,166,35,.15);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity .3s;
+    }
+    .galeri-label {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px; letter-spacing: 2px; color: var(--white);
+    }
+
+    /* ── İLETİŞİM ── */
+    #iletisim { background: var(--iron); }
+    .iletisim-wrap {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+    }
+    .iletisim-info h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px; color: var(--white); margin-bottom: 24px;
+    }
+    .info-row {
+      display: flex; align-items: flex-start; gap: 16px;
+      margin-bottom: 20px;
+    }
+    .info-icon { font-size: 20px; margin-top: 2px; }
+    .info-text { font-size: 14px; color: var(--metal); line-height: 1.6; }
+    .info-text strong { color: var(--light); display: block; margin-bottom: 2px; }
+
+    /* Form */
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block; font-size: 11px; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--metal); margin-bottom: 8px;
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      background: var(--steel);
+      border: 1px solid #3a3a3a;
+      color: var(--light);
+      padding: 12px 16px;
+      font-family: 'Barlow', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus { border-color: var(--spark); }
+    .form-group textarea { height: 120px; resize: vertical; }
+    .form-group select option { background: var(--steel); }
+    .btn-submit {
+      width: 100%;
+      padding: 16px;
+      background: var(--spark); color: #111;
+      font-family: 'Barlow', sans-serif;
+      font-weight: 700; font-size: 13px;
+      letter-spacing: 3px; text-transform: uppercase;
+      border: none; cursor: pointer;
+      transition: opacity .2s;
+      margin-top: 8px;
+    }
+    .btn-submit:hover { opacity: .85; }
+
+    /* Toast */
+    .toast {
+      display: none;
+      background: var(--spark); color: #111;
+      padding: 14px 24px;
+      font-weight: 700; font-size: 13px;
+      letter-spacing: 1px; margin-top: 12px;
+      text-align: center;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #111;
+      padding: 30px 60px;
+      display: flex; justify-content: space-between; align-items: center;
+      border-top: 1px solid #2a2a2a;
+    }
+    footer .logo { font-size: 20px; }
+    footer p { font-size: 12px; color: #555; letter-spacing: 1px; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .reveal {
+      opacity: 0; transform: translateY(30px);
+      transition: opacity .6s, transform .6s;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── MOBİL ── */
+    @media (max-width: 768px) {
+      nav { padding: 16px 24px; }
+      nav ul { display: none; }
+      #hero, section { padding: 80px 24px; }
+      .stats-bar { padding: 30px 24px; flex-wrap: wrap; gap: 24px; }
+      #hakkimizda, .iletisim-wrap { grid-template-columns: 1fr; gap: 40px; }
+      .galeri-grid { grid-template-columns: repeat(2, 1fr); }
+      footer { flex-direction: column; gap: 12px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">ALKAN <span>CNC</span></div>
+  <ul>
+    <li><a href="#hizmetler">Hizmetler</a></li>
+    <li><a href="/menu">Ürünler</a></li>
+    <li><a href="#hakkimizda">Hakkımızda</a></li>
+    <li><a href="#galeri">Galeri</a></li>
+    <li><a href="#iletisim">İletişim</a></li>
+    <li id="authLink"><a href="/login">Giriş Yap</a></li>
+    <li id="registerLink"><a href="/register">Kayıt Ol</a></li>
+    <li id="userMenu" style="display:none; position:relative;">
+      <a href="#" onclick="toggleMenu(event)" id="userName"></a>
+      <div id="dropdownMenu" style="
+        display:none;
+        position:absolute;
+        right:0;
+        top:100%;
+        background:#2c2c2c;
+        border:1px solid #444;
+        min-width:160px;
+        z-index:999;
+      ">
+        <a href="#" onclick="cikisYap()" style="
+          display:block;
+          padding:12px 16px;
+          color:#f2f2f0;
+          text-decoration:none;
+          font-size:13px;
+          letter-spacing:2px;
+          text-transform:uppercase;
+        ">Çıkış Yap</a>
+      </div>
+    </li>
+  </ul>
+
+  <script>
+    const name = localStorage.getItem('name');
+    if (name) {
+      document.getElementById('authLink').style.display = 'none';
+      document.getElementById('registerLink').style.display = 'none';
+      document.getElementById('userMenu').style.display = 'block';
+      document.getElementById('userName').textContent = name;
+    }
+
+    function toggleMenu(e) {
+      e.preventDefault();
+      const menu = document.getElementById('dropdownMenu');
+      menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    }
+
+    document.addEventListener('click', function(e) {
+      if (!document.getElementById('userMenu').contains(e.target)) {
+        document.getElementById('dropdownMenu').style.display = 'none';
+      }
+    });
+
+    function cikisYap() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('name');
+      window.location.reload();
+    }
+  </script>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-accent"></div>
+  <div class="hero-content">
+    <p class="hero-tag">Profesyonel CNC İşleme Hizmetleri</p>
+    <h1 class="hero-title">
+      HASSAS<br>
+      <span class="highlight">FREZE</span><br>
+      İŞLEME
+    </h1>
+    <p class="hero-sub">
+      20 yılı aşkın deneyimle metal, alüminyum ve çelik işleme hizmetleri. Tolerans: ±0.01 mm.
+    </p>
+    <div class="hero-btns">
+      <a href="#iletisim" class="btn-primary">Teklif Al</a>
+      <a href="#hizmetler" class="btn-outline">Hizmetler</a>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat reveal">
+    <div class="stat-num" data-target="20">0</div>
+    <div class="stat-label">Yıl Deneyim</div>
+  </div>
+  <div class="stat reveal">
+    <div class="stat-num" data-target="500">0</div>
+    <div class="stat-label">Tamamlanan Proje</div>
+  </div>
+  <div class="stat reveal">
+    <div class="stat-num" data-target="150">0</div>
+  </div>
+  <div class="stat reveal">
+    <div class="stat-num" data-target="3">0</div>
+    <div class="stat-label">CNC Tezgah</div>
+  </div>
+</div>
+
+<!-- HİZMETLER -->
+<section id="hizmetler">
+  <p class="section-tag reveal">Ne Yapıyoruz</p>
+  <h2 class="section-title reveal">HİZMETLERİMİZ</h2>
+  <div class="hizmet-grid">
+    <div class="hizmet-card reveal">
+      <div class="hizmet-icon">⚙️</div>
+      <div class="hizmet-title">CNC Freze</div>
+      <p class="hizmet-desc">3 ve 4 eksenli CNC freze tezgahlarımızla karmaşık geometriler ve hassas parçalar üretiriz.</p>
+    </div>
+    <div class="hizmet-card reveal">
+      <div class="hizmet-icon">🔩</div>
+      <div class="hizmet-title">Metal İşleme</div>
+      <p class="hizmet-desc">Çelik, alüminyum, paslanmaz çelik ve bakır gibi malzemelerde yüksek hassasiyetli işleme.</p>
+    </div>
+    <div class="hizmet-card reveal">
+      <div class="hizmet-icon">📐</div>
+      <div class="hizmet-title">Prototip Üretim</div>
+      <p class="hizmet-desc">Teknik çizimlerinizden hızlı prototip ve seri üretim desteği sağlarız.</p>
+    </div>
+    <div class="hizmet-card reveal">
+      <div class="hizmet-icon">🔧</div>
+      <div class="hizmet-title">Yedek Parça</div>
+      <p class="hizmet-desc">Katalog dışı ve özel ölçülü yedek parça üretiminde uzmanız.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HAKKIMIZDA -->
+<section id="hakkimizda">
+  <div class="about-text">
+    <p class="section-tag reveal">Biz Kimiz</p>
+    <h2 class="section-title reveal">HAKKIMIZDA</h2>
+    <div class="reveal">
+      <p>
+        <strong>Alkan CNC</strong>, 20 yılı aşkın deneyimiyle metal işleme sektöründe güvenilir bir isim olarak yer almaktadır.
+      </p>
+      <p>
+        Modern CNC tezgahlarımız ve uzman kadromuzla <strong>küçük seri üretimden büyük projelere</strong> kadar geniş bir yelpazede hizmet sunuyoruz.
+      </p>
+    </div>
+    <ul class="machine-list reveal">
+      <li>3 Eksenli CNC Freze Tezgahı (x2)</li>
+      <li>4 Eksenli CNC Freze Tezgahı (x1)</li>
+      <li>±0.01 mm Tolerans Kabiliyeti</li>
+      <li>Max. İş Parçası: 1000 x 600 x 500 mm</li>
+      <li>CAD/CAM Desteği</li>
+    </ul>
+  </div>
+  <div class="about-visual reveal">
+    <div class="spec-row">
+      <div class="spec-label">Hassasiyet</div>
+      <div class="spec-val">± 0.01 MM</div>
+    </div>
+    <div class="spec-row">
+      <div class="spec-label">Çalışma Boyutu (Maks.)</div>
+      <div class="spec-val">1000 × 600 × 500 MM</div>
+    </div>
+    <div class="spec-row">
+      <div class="spec-label">Tezgah Sayısı</div>
+      <div class="spec-val">3 CNC TEZGAH</div>
+    </div>
+    <div class="spec-row">
+      <div class="spec-label">Malzeme</div>
+      <div class="spec-val">ÇELİK · ALÜMİNYUM · PASLANMAZ</div>
+    </div>
+    <div class="spec-row">
+      <div class="spec-label">Teslimat</div>
+      <div class="spec-val">3 - 7 İŞ GÜNÜ</div>
+    </div>
+  </div>
+</section>
+
+<!-- GALERİ -->
+<section id="galeri">
+  <p class="section-tag reveal">Çalışmalarımız</p>
+  <h2 class="section-title reveal">GALERİ</h2>
+  <div class="galeri-grid">
+    <div class="galeri-item reveal">⚙️<div class="galeri-overlay"><span class="galeri-label">Dişli Parça</span></div></div>
+    <div class="galeri-item reveal">🔩<div class="galeri-overlay"><span class="galeri-label">Flanş</span></div></div>
+    <div class="galeri-item reveal">🔧<div class="galeri-overlay"><span class="galeri-label">Bağlantı Elemanı</span></div></div>
+    <div class="galeri-item reveal">📦<div class="galeri-overlay"><span class="galeri-label">Gövde Parçası</span></div></div>
+    <div class="galeri-item reveal">🛠️<div class="galeri-overlay"><span class="galeri-label">Özel Parça</span></div></div>
+    <div class="galeri-item reveal">⚡<div class="galeri-overlay"><span class="galeri-label">Prototip</span></div></div>
+  </div>
+</section>
+
+<!-- İLETİŞİM -->
+<section id="iletisim">
+  <p class="section-tag reveal">Bize Ulaşın</p>
+  <h2 class="section-title reveal">İLETİŞİM</h2>
+  <div class="iletisim-wrap">
+    <div class="iletisim-info reveal">
+      <h3>Teklif almak için<br>formu doldurun.</h3>
+      <div class="info-row">
+        <div class="info-icon">📍</div>
+        <div class="info-text">
+          <strong>Adres</strong>
+          Organize Sanayi Bölgesi, İstanbul
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon">📞</div>
+        <div class="info-text">
+          <strong>Telefon</strong>
+          +90 (5XX) XXX XX XX
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon">✉️</div>
+        <div class="info-text">
+          <strong>E-Posta</strong>
+          info@alkancnc.com
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon">🕐</div>
+        <div class="info-text">
+          <strong>Çalışma Saatleri</strong>
+          Hafta içi 08:00 – 18:00
+        </div>
+      </div>
+    </div>
+    <div class="reveal">
+      <div class="form-group">
+        <label>Ad Soyad</label>
+        <input type="text" id="ad" placeholder="Adınız Soyadınız"/>
+      </div>
+      <div class="form-group">
+        <label>Telefon</label>
+        <input type="tel" id="tel" placeholder="+90 5XX XXX XX XX"/>
+      </div>
+      <div class="form-group">
+        <label>Hizmet Türü</label>
+        <select id="hizmet">
+          <option value="">Seçiniz...</option>
+          <option>CNC Freze</option>
+          <option>Metal İşleme</option>
+          <option>Prototip Üretim</option>
+          <option>Yedek Parça</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Mesaj / Proje Detayı</label>
+        <textarea id="mesaj" placeholder="Projeniz hakkında kısaca bilgi verin..."></textarea>
+      </div>
+      <button class="btn-submit" onclick="formGonder()">Teklif Talep Et →</button>
+      <div class="toast" id="toast">✓ Mesajınız alındı. En kısa sürede dönüş yapacağız!</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="logo">ALKAN <span>CNC</span></div>
+  <p>© 2024 Alkan CNC. Tüm hakları saklıdır.</p>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12 });
+  reveals.forEach(r => observer.observe(r));
+
+  // Counter animation
+  function animateCount(el) {
+    const target = +el.dataset.target;
+    let count = 0;
+    const step = Math.ceil(target / 40);
+    const timer = setInterval(() => {
+      count = Math.min(count + step, target);
+      el.textContent = count + (target >= 100 ? '+' : '');
+      if (count >= target) clearInterval(timer);
+    }, 40);
+  }
+  const statNums = document.querySelectorAll('.stat-num');
+  const statObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { animateCount(e.target); statObserver.unobserve(e.target); } });
+  }, { threshold: 0.5 });
+  statNums.forEach(n => statObserver.observe(n));
+
+  // Form submit
+  function formGonder() {
+    const ad = document.getElementById('ad').value.trim();
+    const tel = document.getElementById('tel').value.trim();
+    const hizmet = document.getElementById('hizmet').value;
+    const mesaj = document.getElementById('mesaj').value.trim();
+    if (!ad || !tel || !hizmet || !mesaj) {
+      alert('Lütfen tüm alanları doldurun.');
+      return;
+    }
+    const toast = document.getElementById('toast');
+    toast.style.display = 'block';
+    document.getElementById('ad').value = '';
+    document.getElementById('tel').value = '';
+    document.getElementById('hizmet').value = '';
+    document.getElementById('mesaj').value = '';
+    setTimeout(() => toast.style.display = 'none', 5000);
+  }
+
+  // Active nav highlight
+  window.addEventListener('scroll', () => {
+    const sections = document.querySelectorAll('section[id]');
+    const links = document.querySelectorAll('nav ul li a');
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id');
+    });
+    links.forEach(a => {
+      a.style.color = a.getAttribute('href') === '#' + current ? 'var(--spark)' : '';
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ALKAN CNC | Giriş</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --steel: #1a1a1a;
+      --iron: #2c2c2c;
+      --spark: #f5a623;
+      --metal: #888;
+      --light: #f2f2f0;
+      --white: #ffffff;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Barlow', sans-serif;
+      background: var(--steel);
+      color: var(--light);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 18px 60px;
+      background: rgba(26,26,26,0.92);
+      border-bottom: 1px solid #333;
+    }
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px; letter-spacing: 4px; color: var(--spark);
+      text-decoration: none;
+    }
+    .logo span { color: var(--white); }
+    .auth-container {
+      flex: 1; display: flex;
+      justify-content: center; align-items: center;
+      padding: 60px 24px;
+    }
+    .auth-box {
+      background: var(--iron);
+      padding: 48px 40px;
+      width: 100%; max-width: 420px;
+      border-top: 3px solid var(--spark);
+    }
+    .auth-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px; letter-spacing: 2px;
+      color: var(--white); margin-bottom: 8px;
+    }
+    .auth-sub {
+      font-size: 13px; color: var(--metal);
+      margin-bottom: 32px;
+    }
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block; font-size: 11px;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--metal); margin-bottom: 8px;
+    }
+    .form-group input {
+      width: 100%;
+      background: var(--steel);
+      border: 1px solid #3a3a3a;
+      color: var(--light);
+      padding: 12px 16px;
+      font-family: 'Barlow', sans-serif;
+      font-size: 14px; outline: none;
+      transition: border-color .2s;
+    }
+    .form-group input:focus { border-color: var(--spark); }
+    .btn-submit {
+      width: 100%; padding: 16px;
+      background: var(--spark); color: #111;
+      font-family: 'Barlow', sans-serif;
+      font-weight: 700; font-size: 13px;
+      letter-spacing: 3px; text-transform: uppercase;
+      border: none; cursor: pointer;
+      transition: opacity .2s; margin-top: 8px;
+    }
+    .btn-submit:hover { opacity: .85; }
+    .auth-link {
+      text-align: center; margin-top: 24px;
+      font-size: 13px; color: var(--metal);
+    }
+    .auth-link a { color: var(--spark); text-decoration: none; }
+    .error-msg {
+      background: #c0392b; color: white;
+      padding: 12px 16px; font-size: 13px;
+      margin-bottom: 16px; display: none;
+    }
+    .success-msg {
+      background: #27ae60; color: white;
+      padding: 12px 16px; font-size: 13px;
+      margin-bottom: 16px; display: none;
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">ALKAN <span>CNC</span></a>
+</nav>
+
+<div class="auth-container">
+  <div class="auth-box">
+    <h1 class="auth-title">GİRİŞ YAP</h1>
+    <p class="auth-sub">Hesabınıza giriş yapın</p>
+    <div class="error-msg" id="errorMsg"></div>
+    <div class="success-msg" id="successMsg"></div>
+    <div class="form-group">
+      <label>E-Posta</label>
+      <input type="email" id="email" placeholder="ornek@email.com"/>
+    </div>
+    <div class="form-group">
+      <label>Şifre</label>
+      <input type="password" id="password" placeholder="••••••••"/>
+    </div>
+    <button class="btn-submit" onclick="girisYap()">Giriş Yap →</button>
+    <div class="auth-link">
+      Hesabınız yok mu? <a href="/register">Kayıt Ol</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  async function girisYap() {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const errorMsg = document.getElementById('errorMsg');
+    const successMsg = document.getElementById('successMsg');
+
+    errorMsg.style.display = 'none';
+    successMsg.style.display = 'none';
+
+    if (!email || !password) {
+      errorMsg.textContent = 'Lütfen tüm alanları doldurun.';
+      errorMsg.style.display = 'block';
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('name', data.name);
+        successMsg.textContent = `Hoşgeldin ${data.name}! Yönlendiriliyorsunuz...`;
+        successMsg.style.display = 'block';
+        setTimeout(() => window.location.href = '/', 1500);
+      } else {
+        errorMsg.textContent = data.message;
+        errorMsg.style.display = 'block';
+      }
+    } catch (err) {
+      errorMsg.textContent = 'Bir hata oluştu, tekrar deneyin.';
+      errorMsg.style.display = 'block';
+    }
+  }
+</script>
+</body>
+</html>
